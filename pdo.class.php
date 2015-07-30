@@ -8,8 +8,8 @@
  * @author		myazarc
  * @require		Memcached (optional)
  * @createtime	15:40 08.04.2014 (H:i d.m.Y)[Europa/Istanbul]
- * @updatetime	02:18 28.10.2014 (H:i d.m.Y)[Europa/Istanbul]
- * @version		v1.0
+ * @updatetime	15:35 30.07.2015 (H:i d.m.Y)[Europa/Istanbul]
+ * @version		v1.1
  * @license     http://myazarc.com/myazarc-classes-license/
  * @see			http://myazarc.com/pdo-memcached-class/
  */
@@ -17,11 +17,11 @@
 class db {
     #global db connect config
 
-    var $db_type = 'mysql';  // database type: only use mysql,mssql,firebird,oracle
-    var $db_host = 'localhost';   // database host or database location
+    var $db_type = 'sqlite';  // database type: only use mysql,mssql,firebird,oracle,sqlite
+    var $db_host = '/home/proder/www/MemcachedPDOClass/db/tester.sqlite';   // database host or database location
     var $db_user = 'root';  // database user
     var $db_pass = '';  // database password
-    var $db_name = 'phpupdater';  // database name or database file location
+    var $db_name = '';  // database name or database file location
     var $db_port = '3306';  // database port
     var $db_serna = 'orcl';    // service name (only use oci(oracle)) 
     var $db_cache = FALSE;  // database for cache. only use TRUE,FALSE
@@ -94,9 +94,11 @@ class db {
             $this->db_conn_firebird();
         } elseif ($this->db_type == 'oracle') {
             $this->db_conn_oci();
+        } elseif ($this->db_type == 'sqlite') {
+            $this->db_conn_sqlite();
         } //if $this->db_type end
 
-        $this->db_conn->exec('SET NAMES "utf8"');
+        //$this->db_conn->exec('SET NAMES "utf8"');
     }
 
 //function connect end;
@@ -109,8 +111,18 @@ class db {
             exit();
         }
     }
-
 // function db_conn_mysql end;
+    private function db_conn_sqlite() {
+        try {
+            $this->db_conn = new PDO('sqlite:' . $this->db_host);
+            $this->db_conn->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+        } catch (Exception $exc) {
+            $this->show_err('Connection Error', $exc->getMessage());
+            exit();
+        }
+    }
+
+// function db_conn_sqllite end;
 
     private function db_conn_mssql() {
         try {
@@ -244,6 +256,13 @@ class db {
             $this->prepare=array();
             return $result;
         }
+    }
+    
+    public function exec($sql) {
+        $query = $this->db_conn->exec($sql);
+        $this->queryStatus = boolval($query);
+        $this->lastsql = $sql;
+        return $this;
     }
 
 // function query end;
