@@ -190,7 +190,7 @@ class db {
 
         for ($counter = 0; $counter < $total_column; $counter ++) {
             $meta = $select->getColumnMeta($counter);
-            $column[] = $meta['name'];
+            $column[] = (object)$meta;
         }
         $this->lastsql = 'SELECT * FROM $tablename LIMIT 1';
         $this->rowcount = $total_column;
@@ -822,15 +822,16 @@ class db {
         echo '<th style="padding:3px; border:1px solid #333;border-collapse:collapse; background-color:#ccc">Row No</th>';
         $i = 1;
         foreach ($colname as $q) {
-            echo '<th style="padding:3px; border:1px solid #333;border-collapse:collapse; background-color:#ccc">' . $q . '</th>';
+            echo '<th style="padding:3px; border:1px solid #333;border-collapse:collapse; background-color:#ccc">' . $q->name . '</th>';
         }
         echo '</tr>';
         if ($this->rowCount()) {
             foreach ($result as $q) {
                 echo '<tr>';
                 echo '<td style="border:1px solid #333;">&nbsp;' . $i . '</td>';
-                foreach ($colname as $w) {
-                    echo '<td style="border:1px solid #333;">&nbsp;' . $q->$w . '</td>';
+                foreach ($colname as $w) { 
+                    $coln=$w->name;
+                    echo '<td style="border:1px solid #333;">&nbsp;' . $q->$coln . '</td>';
                 }
                 echo '</tr>';
                 $i++;
