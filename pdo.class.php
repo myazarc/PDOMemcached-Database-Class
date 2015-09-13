@@ -8,8 +8,8 @@
  * @author		myazarc
  * @require		Memcached (optional)
  * @createtime	15:40 08.04.2014 (H:i d.m.Y)[Europa/Istanbul]
- * @updatetime	15:35 30.07.2015 (H:i d.m.Y)[Europa/Istanbul]
- * @version		v1.1
+ * @updatetime	18:30 13.09.2015 (H:i d.m.Y)[Europa/Istanbul]
+ * @version		v1.2
  * @license     http://myazarc.com/myazarc-classes-license/
  * @see			http://myazarc.com/pdo-memcached-class/
  */
@@ -511,20 +511,20 @@ class db {
             $where = "WHERE $where";
         }
         $sql = "DELETE FROM $tblname " . $where;
-        
+
         try {
-                $q = $this->db_conn->prepare($sql);
-                $this->queryStatus = boolval($q);
-                if (!$q->execute($this->prepare)) {
-                    $this->show_err($sql, $this->db_conn->errorInfo());
-                }
-            } catch (PDOException $e) {
-                $this->show_err($sql, $e->getMessage());
-            } //try catch end;
+            $q = $this->db_conn->prepare($sql);
+            $this->queryStatus = boolval($q);
+            if (!$q->execute($this->prepare)) {
+                $this->show_err($sql, $this->db_conn->errorInfo());
+            }
+        } catch (PDOException $e) {
+            $this->show_err($sql, $e->getMessage());
+        } //try catch end;
         $this->lastsql = $sql;
         $this->where = 'where ';
         $this->countwhere = 0;
-        $this->prepare=array();
+        $this->prepare = array();
         return $this;
     }
 
@@ -542,7 +542,7 @@ class db {
             if ($where !== NULL) {
                 $wher = "where $where";
             }
-            $val=array_merge($val,$this->prepare);
+            $val = array_merge($val, $this->prepare);
             $sql = "UPDATE $tblname SET $upd " . ($this->countwhere ? $this->where : $where);
             try {
                 $q = $this->db_conn->prepare($sql);
@@ -557,7 +557,7 @@ class db {
         $this->lastsql = $sql;
         $this->where = 'where ';
         $this->countwhere = 0;
-        $this->prepare=array();
+        $this->prepare = array();
         return $this;
     }
 
@@ -817,8 +817,8 @@ class db {
         $this->limit = '';
         $this->havingcount = 0;
         $this->having = '';
-        $this->getFetchColumn=false;
-        $this->getFetchColumnNumber=0;
+        $this->getFetchColumn = false;
+        $this->getFetchColumnNumber = 0;
 
 
         return $this->query($sql);
@@ -839,9 +839,8 @@ class db {
             $this->orderbycount = 0;
             $this->havingcount = 0;
             $this->having = '';
-            
-                    $this->getFetchColumn=false;
-        $this->getFetchColumnNumber=0;
+            $this->getFetchColumn = false;
+            $this->getFetchColumnNumber = 0;
         }
 
         return $this->lastsql;
