@@ -17,11 +17,11 @@
 class db {
     #global db connect config
 
-    var $db_type = 'sqlite';  // database type: only use mysql,mssql,firebird,oracle,sqlite
-    var $db_host = '/home/proder/www/MemcachedPDOClass/db/tester.sqlite';   // database host or database location
+    var $db_type = 'mysql';  // database type: only use mysql,mssql,firebird,oracle,sqlite
+    var $db_host = 'localhost';   // database host or database location
     var $db_user = 'root';  // database user
-    var $db_pass = '';  // database password
-    var $db_name = '';  // database name or database file location
+    var $db_pass = '12345';  // database password
+    var $db_name = 'test';  // database name or database file location
     var $db_port = '3306';  // database port
     var $db_serna = 'orcl';    // service name (only use oci(oracle)) 
     var $db_cache = FALSE;  // database for cache. only use TRUE,FALSE
