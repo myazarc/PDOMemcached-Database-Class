@@ -8,8 +8,8 @@
  * @author		myazarc
  * @require		Memcached (optional)
  * @createtime	15:40 08.04.2014 (H:i d.m.Y)[Europa/Istanbul]
- * @updatetime	18:30 13.09.2015 (H:i d.m.Y)[Europa/Istanbul]
- * @version		v1.2
+ * @updatetime	14:00 04.11.2015 (H:i d.m.Y)[Europa/Istanbul]
+ * @version		v1.3
  * @license     http://myazarc.com/myazarc-classes-license/
  * @see			http://myazarc.com/pdo-memcached-class/
  */
@@ -20,8 +20,8 @@ class db {
     var $db_type = 'mysql';  // database type: only use mysql,mssql,firebird,oracle,sqlite
     var $db_host = 'localhost';   // database host or database location
     var $db_user = 'root';  // database user
-    var $db_pass = '12345';  // database password
-    var $db_name = 'test';  // database name or database file location
+    var $db_pass = '';  // database password
+    var $db_name = 'myc';  // database name or database file location
     var $db_port = '3306';  // database port
     var $db_serna = 'orcl';    // service name (only use oci(oracle)) 
     var $db_cache = FALSE;  // database for cache. only use TRUE,FALSE
@@ -307,6 +307,10 @@ class db {
         }
     }
 
+    public function isOk() {
+        return $this->queryStatus;
+    }
+
     public function sum($field, $asfield) {
         if ($this->selectcount > 0) {
             $this->select.=',' . "SUM($field) as $asfield";
@@ -514,10 +518,10 @@ class db {
 
         try {
             $q = $this->db_conn->prepare($sql);
-            $this->queryStatus = boolval($q);
             if (!$q->execute($this->prepare)) {
                 $this->show_err($sql, $this->db_conn->errorInfo());
             }
+            $this->queryStatus = boolval($q);
         } catch (PDOException $e) {
             $this->show_err($sql, $e->getMessage());
         } //try catch end;
@@ -822,6 +826,16 @@ class db {
 
 
         return $this->query($sql);
+    }
+    
+    public function get_where($tablename=null,$where=array()) {
+        if(is_array($where)){
+            if(count($where)){
+                $this->where($where);
+            }
+        }
+        
+        return $this->get($tablename);
     }
 
     public function get_sql($clearSql = FALSE) {
