@@ -1,15 +1,21 @@
 <?php
 
+namespace myc;
+
+use myc\Exception\MYCDBException as MYCDBException;
+use myc\Exception\MYCDBPDOException as MYCDBPDOException;
+use myc\Exception\MYCDBInvalidArgumentException as MYCDBInvalidArgumentException;
+
 /*
  * PDO Database Class
  * 	
  * @package		MYAZARC Classes
  * @category            Database Class
- * @author		myazarc
+ * @author		myazarc<i@myazarc.com>
  * @require		Memcached (optional)
  * @createtime	15:40 08.04.2014 (H:i d.m.Y)[Europa/Istanbul]
- * @updatetime	14:00 04.11.2015 (H:i d.m.Y)[Europa/Istanbul]
- * @version		v1.3
+ * @updatetime	16:37 04.11.2015 (H:i d.m.Y)[Europa/Istanbul]
+ * @version		v1.4
  * @license     http://myazarc.com/myazarc-classes-license/
  * @see			http://myazarc.com/pdo-memcached-class/
  */
@@ -20,8 +26,8 @@ class db {
     var $db_type = 'mysql';  // database type: only use mysql,mssql,firebird,oracle,sqlite
     var $db_host = 'localhost';   // database host or database location
     var $db_user = 'root';  // database user
-    var $db_pass = '';  // database password
-    var $db_name = 'myc';  // database name or database file location
+    var $db_pass = '12345';  // database password
+    var $db_name = 'elfatek';  // database name or database file location
     var $db_port = '3306';  // database port
     var $db_serna = 'orcl';    // service name (only use oci(oracle)) 
     var $db_cache = FALSE;  // database for cache. only use TRUE,FALSE
@@ -60,15 +66,60 @@ class db {
     private $getFetchColumn = false;
     private $getFetchColumnNumber = 0;
 
-    function __construct() {
+    function __construct($data = array()) {
+
+        if (!class_exists('PDO')) {
+            throw new MYCDBException('PDO class not exists!');
+        }
+
+
+        if (is_array($data)) {
+            if (count($data)) {
+                if (array_key_exists(0, $data)) {
+                    $this->db_host = $data[0];
+                    $this->db_user = $data[1];
+                    $this->db_pass = $data[2];
+                    $this->db_name = $data[3];
+
+                    if (array_key_exists(4, $data)) {
+                        $this->db_port = $data[4];
+                    }
+                    if (array_key_exists(5, $data)) {
+                        $this->db_type = $data[5];
+                    }
+                } else if (array_key_exists('host', $data)) {
+                    $this->db_host = $data['host'];
+                    $this->db_user = $data['user'];
+                    $this->db_pass = $data['name'];
+                    $this->db_name = $data['pass'];
+
+                    if (array_key_exists('port', $data)) {
+                        $this->db_port = $data['port'];
+                    }
+                    if (array_key_exists('type', $data)) {
+                        $this->db_type = $data['type'];
+                    }
+                } else {
+                    throw new MYCDBInvalidArgumentException('Parameter error in class construct!');
+                }
+            }
+        } else {
+            throw new MYCDBInvalidArgumentException('Parameter <em>array</em>s can only be defined in class construct!');
+        }
+
         $this->connectdb();
         if ($this->db_cache === TRUE) {
+
+            if (!class_exists('Memcache')) {
+                throw new MYCDBException('Memcache class not exists!');
+            }
+
             $this->connectmem();
         }
     }
 
     public function connectmem() {
-        $this->cache = new Memcache();
+        $this->cache = new \Memcache();
         $this->cache->pconnect($this->link, $this->port);
     }
 
@@ -102,21 +153,19 @@ class db {
 
     private function db_conn_mysql() {
         try {
-            $this->db_conn = new PDO('mysql:host=' . $this->db_host . ';dbname=' . $this->db_name . '; port=' . $this->db_port, $this->db_user, $this->db_pass, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
-        } catch (Exception $exc) {
-            $this->show_err('Connection Error', $exc->getMessage());
-            exit();
+            $this->db_conn = new \PDO('mysql:host=' . $this->db_host . ';dbname=' . $this->db_name . '; port=' . $this->db_port, $this->db_user, $this->db_pass, array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
+        } catch (\PDOException $e) {
+            throw new MYCDBPDOException($e->getMessage());
         }
     }
 
 // function db_conn_mysql end;
     private function db_conn_sqlite() {
         try {
-            $this->db_conn = new PDO('sqlite:' . $this->db_host);
-            $this->db_conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (Exception $exc) {
-            $this->show_err('Connection Error', $exc->getMessage());
-            exit();
+            $this->db_conn = new \PDO('sqlite:' . $this->db_host);
+            $this->db_conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        } catch (\PDOException $e) {
+            throw new MYCDBPDOException($e->getMessage());
         }
     }
 
@@ -124,10 +173,9 @@ class db {
 
     private function db_conn_mssql() {
         try {
-            $this->db_conn = new PDO('dblib:host=' . $this->db_host . ';dbname=' . $this->db_name . '; port=' . $this->db_port, $this->db_user, $this->db_pass, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
-        } catch (Exception $exc) {
-            $this->show_err('Connection Error', $exc->getMessage());
-            exit();
+            $this->db_conn = new \PDO('dblib:host=' . $this->db_host . ';dbname=' . $this->db_name . '; port=' . $this->db_port, $this->db_user, $this->db_pass, array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
+        } catch (\PDOException $e) {
+            throw new MYCDBPDOException($e->getMessage());
         }
     }
 
@@ -135,10 +183,9 @@ class db {
 
     private function db_conn_firebird() {
         try {
-            $this->db_conn = new PDO('firebird:dbhost:' . $this->db_host . ';dbname=' . $this->db_name, $this->db_user, $this->db_pass, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
-        } catch (Exception $exc) {
-            $this->show_err('Connection Error', $exc->getMessage());
-            exit();
+            $this->db_conn = new \PDO('firebird:dbhost:' . $this->db_host . ';dbname=' . $this->db_name, $this->db_user, $this->db_pass, array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
+        } catch (\PDOException $e) {
+            throw new MYCDBPDOException($e->getMessage());
         }
     }
 
@@ -156,10 +203,9 @@ class db {
                       )
                ";
         try {
-            $this->db_conn = new PDO("oci:dbname=" . $tns, $this->db_user, $this->db_pass, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION));
-        } catch (Exception $exc) {
-            $this->show_err('Connection Error', $exc->getMessage());
-            exit();
+            $this->db_conn = new \PDO("oci:dbname=" . $tns, $this->db_user, $this->db_pass, array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
+        } catch (\PDOException $e) {
+            throw new MYCDBPDOException($e->getMessage());
         }
     }
 
@@ -168,7 +214,7 @@ class db {
     public function showtables() {
         $tableList = array();
         $result = $this->db_conn->query("SHOW TABLES");
-        while ($row = $result->fetch(PDO::FETCH_NUM)) {
+        while ($row = $result->fetch(\PDO::FETCH_NUM)) {
             $tableList[] = $row[0];
         }
 
@@ -236,8 +282,8 @@ class db {
                     } else {
                         $this->show_err($sql, $this->db_conn->errorInfo());
                     } // if query end;
-                } catch (PDOException $e) {
-                    $this->show_err($sql, $e->getMessage());
+                } catch (\PDOException $e) {
+                    throw new MYCDBPDOException($e->getMessage());
                 }//try catch end;
                 $this->lastprepare = $this->prepare;
                 $this->prepare = array();
@@ -279,8 +325,8 @@ class db {
                 } else {
                     $this->show_err($sql, $this->db_conn->errorInfo());
                 } // if query end;
-            } catch (PDOException $e) {
-                $this->show_err($sql, $e->getMessage());
+            } catch (\PDOException $e) {
+                throw new MYCDBPDOException($e->getMessage());
             }//try catch end;
             $this->lastprepare = $this->prepare;
             $this->is_cache = FALSE;
@@ -455,9 +501,9 @@ class db {
                 }
                 $this->queryStatus = boolval($q);
                 $this->lastinsertid = $this->db_conn->lastInsertId();
-            } catch (PDOException $e) {
-                $this->show_err($sql, $e->getMessage());
-            } //try catch end;
+            } catch (\PDOException $e) {
+                throw new MYCDBPDOException($e->getMessage());
+            }//try catch end;
             $this->lastsql = $sql;
         }
         return $this;
@@ -496,8 +542,8 @@ class db {
                 }
                 $this->queryStatus = boolval($q);
                 $this->lastinsertid = $this->db_conn->lastInsertId();
-            } catch (PDOException $e) {
-                $this->show_err($sql, $e->getMessage());
+            } catch (\PDOException $e) {
+                throw new MYCDBPDOException($e->getMessage());
             } //try catch end;
             $this->lastsql = $sql;
         }
@@ -522,8 +568,8 @@ class db {
                 $this->show_err($sql, $this->db_conn->errorInfo());
             }
             $this->queryStatus = boolval($q);
-        } catch (PDOException $e) {
-            $this->show_err($sql, $e->getMessage());
+        } catch (\PDOException $e) {
+            throw new MYCDBPDOException($e->getMessage());
         } //try catch end;
         $this->lastsql = $sql;
         $this->where = 'where ';
@@ -554,8 +600,8 @@ class db {
                 if (!$q->execute($val)) {
                     $this->show_err($sql, $this->db_conn->errorInfo());
                 }
-            } catch (PDOException $e) {
-                $this->show_err($sql, $e->getMessage());
+            } catch (\PDOException $e) {
+                throw new MYCDBPDOException($e->getMessage());
             } //try catch end;
         }
         $this->lastsql = $sql;
@@ -827,14 +873,14 @@ class db {
 
         return $this->query($sql);
     }
-    
-    public function get_where($tablename=null,$where=array()) {
-        if(is_array($where)){
-            if(count($where)){
+
+    public function get_where($tablename = null, $where = array()) {
+        if (is_array($where)) {
+            if (count($where)) {
                 $this->where($where);
             }
         }
-        
+
         return $this->get($tablename);
     }
 
