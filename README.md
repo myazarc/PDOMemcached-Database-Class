@@ -1,4 +1,4 @@
-# PDOMemcached-Databese-Class
+# PDOMemcached Databese Class
 
 ## Usage
 ```php
