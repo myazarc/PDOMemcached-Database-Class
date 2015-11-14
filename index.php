@@ -1,24 +1,18 @@
 <?php
 
-ini_set('display_errors', TRUE);
-
 require_once 'vendor/Autoloader.php';
 
-use myc\db as db;
-
+use myc\Core\db as db;
 use myc\Exception\MYCDBException as MYCDBException;
 use myc\Exception\MYCDBPDOException as MYCDBPDOException;
 use myc\Exception\MYCDBInvalidArgumentException as MYCDBInvalidArgumentException;
 
-
-
 try {
     $db = new db();
-    
-    $data=$db->get_where('cashbox', array('ISACTIVE'=>'Evet'));
-    
+
+    $data = $db->get_where('cashbox', array('ISACTIVE' => 'Evet'));
+
     $db->debug();
-    
 } catch (MYCDBInvalidArgumentException $e) {
     echo $e->errorMessage();
 } catch (MYCDBPDOException $e) {

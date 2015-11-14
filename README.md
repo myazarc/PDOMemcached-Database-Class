@@ -5,7 +5,7 @@
 <?php 
 require_once 'vendor/Autoloader.php';
 
-use myc\db as db;
+use myc\Core\db as db;
 
 use myc\Exception\MYCDBException as MYCDBException;
 use myc\Exception\MYCDBPDOException as MYCDBPDOException;

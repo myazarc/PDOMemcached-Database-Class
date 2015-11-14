@@ -1,6 +1,6 @@
 <?php
 
-namespace myc;
+namespace myc\Core;
 
 use myc\Exception\MYCDBException as MYCDBException;
 use myc\Exception\MYCDBPDOException as MYCDBPDOException;
